@@ -130,7 +130,7 @@ var g_searchKey = (function (args) {
     '*string e,add=' + param[3],
     '*string e,list=' + param[4],
     '*string e,flen=' + param[2].length,
-    '*string e,blen=%*js("PPx.Result=PPx.Extract(\'%si"gopt"\').length"%)'
+    '*string e,blen=%*js("PPx.Result=PPx.Extract(\'%si"gopt"\').length")'
   ].join('%:');
 
   PPx.Execute(si);
