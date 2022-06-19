@@ -1,0 +1,44 @@
+Grep output
+
+Author: tar80 <tar80master@google.com>
+License: MIT License
+Repository: https://github.com/tar80/ppm-grep
+===============================================================================
+
+grepの結果を指定した方法で出力します。
+標準ではリストファイル・PPv・vimに出力できます。cache\script\grep_output.jsに
+メソッドを追加すれば、その他の方法で出力することも可能です。
+
+===============================================================================
+動作環境
+
+	grep.exeが必要です。
+	他にripgrep.exe、jvgrep.exeなどのgrepコマンドも利用できます。
+
+===============================================================================
+構成ファイルの説明
+
+	\script\xxx\grep_run.js		grepコマンドを実行し、指定した方法で出力
+	\script\xxx\toggle_grep.js	使用するコマンドを順に変更する
+	\sheet\GITGREPOPTION.TXT	git-grepオプション補完リスト
+	\sheet\GREPOPTION.TXT		grepオプション補完リスト
+	\sheet\JVGREPOPTION.TXT		jvgrepオプション補完リスト
+	\sheet\RGOPTION.TXT		ripgrepオプション補完リスト
+	\userscript\grep_output.js	grep結果を出力する方法を定義できる
+
+===============================================================================
+テーブル情報
+
+	M_ppmGrep	使用するgrepコマンドと出力方法の情報
+
+	K_ppmGrep	grep用一行編集で使用するキー
+
+
+===============================================================================
+デフォルトキー設定
+
+PPc
+	CTRL+W	grep用一行編集
+
+一行編集
+	CTRL+W	使用するおコマンドの変更
