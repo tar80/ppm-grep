@@ -111,8 +111,8 @@ PPx.Execute(
     ' *setcaption [%si"output"] %si"cmd" %si"gopt"  ※\\=\\\\%)'
 );
 
-// Search character input and escape processing
-var g_searchKey = (function (args) {
+// Search strings input and escape processing
+var g_search = (function (args) {
   var param = util.getc('M_ppmGrep:' + args.cmd + args.output).split(',');
   var option = param[2] + (param[3].indexOf('-') === 0 ? ' ' : '') + param[3];
   var si = [
@@ -135,7 +135,8 @@ var g_searchKey = (function (args) {
 
   PPx.Execute(si);
 
-  return (
+  // Get search terms
+  var terms =
     PPx.Extract(
       util.input.call({
         type: 1,
@@ -143,19 +144,20 @@ var g_searchKey = (function (args) {
         mode: 'Os',
         k: '%(*mapkey use,K_ppmGrep %: *linemessage %si"git_string" %:' + se + '%)'
       })
-    ) || PPx.Quit(1)
-  );
+    ) || PPx.Quit(1);
+
+  // Convert regular expression escape characters in search terms to characters
+  var words = terms.replace(/\^?([^$]*)\$?/, '$1');
+
+  return {
+    terms: PPx.Extract('%si"cmd"') === 'grep' ? terms.replace(/\\/g, '\\\\') : terms,
+    words: words.replace(/(\\)(.)/g, function (p0, p1, p2) {
+      return util.fmt.nor[p0] || util.fmt.nor[p1] + p2;
+    })
+  };
 })(g_args);
 
-// Convert regular expression escape characters in search words into characters
-var g_keyWord = (function (word) {
-  var word_ = word.replace(/\^?([^$]*)\$?/, '$1');
-  return word_.replace(/(\\)(.)/g, function (p0, p1, p2) {
-    return util.fmt.nor[p0] || util.fmt.nor[p1] + p2;
-  });
-})(g_searchKey);
-
-output['ppv'] = function (args, path, searchkey, keyword) {
+output['ppv'] = function (args, path, term, keyword) {
   // Changed to Caret-mode at one time
   PPx.Execute(
     '*linecust tmod,KV_main:CLOSEEVENT,*setcust XV_tmod=%*getcust(XV_tmod) %%:' +
@@ -169,7 +171,7 @@ output['ppv'] = function (args, path, searchkey, keyword) {
       path.wd +
       '"' +
       ' %si"cmd" %si"gopt" "' +
-      searchkey +
+      term +
       '" %si"git_string" ' +
       path.entry +
       ' | %0ppvw -bootid:w -esc -document -utf8 -k *string p,grep=1 %%: *find "' +
@@ -178,7 +180,7 @@ output['ppv'] = function (args, path, searchkey, keyword) {
   );
 };
 
-output['lf'] = function (args, path, searchkey, keyword) {
+output['lf'] = function (args, path, term, keyword) {
   var commithash = PPx.Extract('%si"git_string');
   var hasCommit = !!commithash;
   var commithash_ = hasCommit ? commithash + '@@@' : '';
@@ -187,10 +189,7 @@ output['lf'] = function (args, path, searchkey, keyword) {
   var newList = [
     ';ListFile',
     ';Base=' + path.wd + '|' + path.type,
-    '"file","line",A:H5,C:0.0,L:0.0,W:0.0,S:0.0,H:0,M:0,T:"result => ' +
-      commithash_ +
-      keyword +
-      '"'
+    '"file","line",A:H5,C:0.0,L:0.0,W:0.0,S:0.0,H:0,M:0,T:"result => ' + commithash_ + keyword + '"'
   ];
 
   // Output of Grep result
@@ -199,7 +198,7 @@ output['lf'] = function (args, path, searchkey, keyword) {
       path.wd +
       '"' +
       ' %si"cmd" %si"gopt" "' +
-      searchkey +
+      term +
       '" ' +
       commithash +
       ' ' +
@@ -256,4 +255,4 @@ output['lf'] = function (args, path, searchkey, keyword) {
   st.Close;
 };
 
-output[PPx.Extract('%si"output"').toLowerCase()](g_args, g_path, g_searchKey, g_keyWord);
+output[PPx.Extract('%si"output"').toLowerCase()](g_args, g_path, g_search.terms, g_search.words);

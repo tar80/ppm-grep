@@ -111,8 +111,8 @@ PPx.Execute(
     ' *setcaption [%si"output"] %si"cmd" %si"gopt"  ※\\=\\\\%)'
 );
 
-// Search character input and escape processing
-const g_searchKey = ((args = g_args) => {
+// Search strings input and escape processing
+const g_search = ((args = g_args) => {
   const param = util.getc('M_ppmGrep:' + args.cmd + args.output).split(',');
   const option = param[2] + (param[3].indexOf('-') === 0 ? ' ' : '') + param[3];
   const si = [
@@ -135,7 +135,8 @@ const g_searchKey = ((args = g_args) => {
 
   PPx.Execute(si);
 
-  return (
+  // Get search terms
+  const terms =
     PPx.Extract(
       util.input.call({
         type: 1,
@@ -143,17 +144,18 @@ const g_searchKey = ((args = g_args) => {
         mode: 'Os',
         k: `%(*mapkey use,K_ppmGrep %: *linemessage %si"git_string" %:${se}%)`
       })
-    ) || PPx.Quit(1)
-  );
+    ) || PPx.Quit(1);
+
+  // Convert regular expression escape characters in search terms to characters
+  const words = terms.replace(/\^?([^$]*)\$?/, '$1');
+
+  return {
+    terms: PPx.Extract('%si"cmd"') === 'grep' ? terms.replace(/\\/g, '\\\\') : terms,
+    words: words.replace(/(\\)(.)/g, (p0, p1, p2) => util.fmt.nor[p0] || util.fmt.nor[p1] + p2)
+  };
 })();
 
-// Convert regular expression escape characters in search words into characters
-const g_keyWord = ((word = g_searchKey) => {
-  const word_ = word.replace(/\^?([^$]*)\$?/, '$1');
-  return word_.replace(/(\\)(.)/g, (p0, p1, p2) => util.fmt.nor[p0] || util.fmt.nor[p1] + p2);
-})();
-
-output['ppv'] = (_args, path, searchkey, keyword) => {
+output['ppv'] = (_args, path, term, keyword) => {
   // Changed to Caret-mode at one time
   PPx.Execute(
     '*linecust tmod,KV_main:CLOSEEVENT,*setcust XV_tmod=%*getcust(XV_tmod) %%:' +
@@ -163,12 +165,12 @@ output['ppv'] = (_args, path, searchkey, keyword) => {
 
   // Receive the result of Grep with PPv standard-input
   PPx.Execute(
-    `%Od *run -min -noppb -d:"${path.wd}" %si"cmd" %si"gopt" "${searchkey}" %si"git_string" ${path.entry}` +
+    `%Od *run -min -noppb -d:"${path.wd}" %si"cmd" %si"gopt" "${term}" %si"git_string" ${path.entry}` +
       `|%0ppvw -bootid:w -esc -document -utf8 -k *string p,grep=1 %%: *find "${keyword}"`
   );
 };
 
-output['lf'] = (args, path, searchkey, keyword) => {
+output['lf'] = (args, path, term, keyword) => {
   const commithash = PPx.Extract('%si"git_string');
   const hasCommit = !!commithash;
   const commithash_ = hasCommit ? commithash + '@@@' : '';
@@ -182,7 +184,7 @@ output['lf'] = (args, path, searchkey, keyword) => {
 
   // Output of Grep result
   PPx.Execute(
-    `%Od *run -min -noppb -d:"${path.wd}" %si"cmd" %si"gopt" "${searchkey}" ${commithash} ${path.entry}` +
+    `%Od *run -min -noppb -d:"${path.wd}" %si"cmd" %si"gopt" "${term}" ${commithash} ${path.entry}` +
       `>"${args.listfile}" %&`
   );
 
@@ -226,4 +228,4 @@ output['lf'] = (args, path, searchkey, keyword) => {
   st.Close;
 };
 
-output[PPx.Extract('%si"output"').toLowerCase()](g_args, g_path, g_searchKey, g_keyWord);
+output[PPx.Extract('%si"output"').toLowerCase()](g_args, g_path, g_search.terms, g_search.words);

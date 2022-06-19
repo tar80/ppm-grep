@@ -1,6 +1,6 @@
 ﻿(function () {
   return {
-    vim: function (args, path, searchkey, keyword) {
+    vim: function (args, path, term, keyword) {
       var listfilepath = args.listfile + 'vim';
       var editor = PPx.Extract("%g'gvim'") !== '' ? 'gvim' : 'vim';
       PPx.Execute(
@@ -8,7 +8,7 @@
           path.wd +
           '"' +
           '%si"cmd" %si"gopt" "' +
-          searchkey +
+          term +
           '" %si"git_string"' +
           path.entry +
           '>"' +
@@ -22,7 +22,7 @@
           ' "+winpos 0 0|set lines=40 columns=130|cfile ' +
           listfilepath +
           '|copen|set nowrap|/' +
-          searchkey +
+          term +
           '/"'
       );
     }
@@ -40,6 +40,6 @@
  * @param path.wd {string} Working directory
  * @param path.entry {string} Target of grep entries
  * @param path.type {string} Working directory-type
- * @param searchkey {string} String to grep
- * @param keyword {string} String without regular-expression-meta from the searchkey
+ * @param term {string} String to grep
+ * @param keyword {string} String without regular-expression-meta from the term
  */
