@@ -8,8 +8,7 @@
  * @arg 3 Specify non-mark entry target path. 0:cursor entry | 1:parent directory
  */
 
-// Constant. newline code in listfile
-var NEWLINE = '\r\n';
+var NL_CHAR = '\r\n';
 
 /* Initial */
 // Read module
@@ -40,12 +39,12 @@ var g_args = (function (args) {
 
   return {
     length: len,
-    listfile: args.item(0),
-    cmd: args.item(1),
-    output: args.item(2),
-    target: len > 3 ? args.item(3) | 0 : 0
+    listfile: args.Item(0),
+    cmd: args.Item(1),
+    output: args.Item(2),
+    target: len > 3 ? args.Item(3) | 0 : 0
   };
-})(PPx.Arguments());
+})(PPx.Arguments);
 
 // Get parent directory information
 var g_path = (function (args) {
@@ -71,8 +70,7 @@ var g_path = (function (args) {
   }
 
   if (wd === '') {
-    PPx.Echo('Unsupported directory');
-    PPx.Quit(1);
+    util.quitMsg('Unsupported directory');
   }
 
   /* Target path of Grep command */
@@ -152,7 +150,7 @@ var g_search = (function (args) {
   return {
     terms: PPx.Extract('%si"cmd"') === 'grep' ? terms.replace(/\\/g, '\\\\') : terms,
     words: words.replace(/(\\)(.)/g, function (p0, p1, p2) {
-      return util.fmt.nor[p0] || util.fmt.nor[p1] + p2;
+      return util.metaRegexp.nor[p0] || util.metaRegexp.nor[p1] + p2;
     })
   };
 })(g_args);
@@ -218,7 +216,7 @@ output['lf'] = function (args, path, term, keyword) {
   var replacer = {
     'false': function (num) {
       grepResults[num].replace(
-        /^([^-:]*)[-:](\d*)([-:])\s*(.*)/,
+        /^(.*?)[-:](\d*)([-:])\s*(.*)/,
         function (_match, p1, p2, p3, p4) {
           p1 = p1 === '' ? p3 : p1;
           p3 = ~p3.indexOf(':') ? 0 : 3;
@@ -231,7 +229,7 @@ output['lf'] = function (args, path, term, keyword) {
     },
     'true': function (num) {
       grepResults[num].replace(
-        /^([0-9a-zA-Z]{7}):([^-:]*)[-:](\d*)([-:])\s*(.*)/,
+        /^([0-9a-zA-Z]{7}):(.*?)[-:](\d*)([-:])\s*(.*)/,
         function (_p0, p1, p2, p3, p4, p5) {
           p2 = p1 === '' ? p4 : p2;
           p4 = ~p4.indexOf(':') ? 0 : 3;

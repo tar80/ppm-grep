@@ -8,8 +8,9 @@
  * @arg 3 Specify non-mark entry target path. 0:cursor entry | 1:parent directory
  */
 
-// Constant. newline code in listfile
-const NEWLINE = '\r\n';
+'use strict';
+
+const NL_CHAR = '\r\n';
 
 /* Initial */
 // Read module
@@ -31,7 +32,7 @@ const git = module(PPx.Extract('%*getcust(S_ppm#global:module)\\gitm.js'));
 const output = module(PPx.Extract('%*getcust(S_ppm#global:cache)\\script\\grep_output.js'));
 module = null;
 
-const g_args = ((args = PPx.Arguments()) => {
+const g_args = ((args = PPx.Arguments) => {
   const len = args.length;
 
   if (len < 3) {
@@ -40,10 +41,10 @@ const g_args = ((args = PPx.Arguments()) => {
 
   return {
     length: len,
-    listfile: args.item(0),
-    cmd: args.item(1),
-    output: args.item(2),
-    target: len > 3 ? args.item(3) | 0 : 0
+    listfile: args.Item(0),
+    cmd: args.Item(1),
+    output: args.Item(2),
+    target: len > 3 ? args.Item(3) | 0 : 0
   };
 })();
 
@@ -71,8 +72,7 @@ const g_path = ((args = g_args) => {
   }
 
   if (wd === '') {
-    PPx.Echo('Unsupported directory');
-    PPx.Quit(1);
+    util.quitMsg('Unsupported directory');
   }
 
   /* Target path of Grep command */
@@ -151,7 +151,7 @@ const g_search = ((args = g_args) => {
 
   return {
     terms: PPx.Extract('%si"cmd"') === 'grep' ? terms.replace(/\\/g, '\\\\') : terms,
-    words: words.replace(/(\\)(.)/g, (p0, p1, p2) => util.fmt.nor[p0] || util.fmt.nor[p1] + p2)
+    words: words.replace(/(\\)(.)/g, (p0, p1, p2) => util.metaRegexp.nor[p0] || util.metaRegexp.nor[p1] + p2)
   };
 })();
 
@@ -197,7 +197,7 @@ output['lf'] = (args, path, term, keyword) => {
   const grepResults = st.ReadText(-1).split('\n');
   const replacer = {
     'false': (num) => {
-      grepResults[num].replace(/^([^-:]*)[-:](\d*)([-:])\s*(.*)/, (_p0, p1, p2, p3, p4) => {
+      grepResults[num].replace(/^(.*?)[-:](\d*)([-:])\s*(.*)/, (_p0, p1, p2, p3, p4) => {
         p1 = p1 === '' ? p3 : p1;
         p3 = ~p3.indexOf(':') ? 0 : 3;
         p4 = p4.replace(/"/g, '""');
@@ -206,7 +206,7 @@ output['lf'] = (args, path, term, keyword) => {
     },
     'true': (num) => {
       grepResults[num].replace(
-        /^([0-9a-zA-Z]{7}):([^-:]*)[-:](\d*)([-:])\s*(.*)/,
+        /^([0-9a-zA-Z]{7}):(.*?)[-:](\d*)([-:])\s*(.*)/,
         (_p0, p1, p2, p3, p4, p5) => {
           p2 = p1 === '' ? p4 : p2;
           p4 = ~p4.indexOf(':') ? 0 : 3;
@@ -223,7 +223,7 @@ output['lf'] = (args, path, term, keyword) => {
 
   // Write the results
   st.Position = 0;
-  st.WriteText(newList.join(NEWLINE));
+  st.WriteText(newList.join(NL_CHAR));
   st.SaveToFile(args.listfile, 2);
   st.Close;
 };
