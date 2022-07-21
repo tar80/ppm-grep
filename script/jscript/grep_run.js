@@ -248,7 +248,7 @@ output['lf'] = function (args, path, term, keyword) {
 
   // Write the results
   st.Position = 0;
-  st.WriteText(newList.join(NEWLINE));
+  st.WriteText(newList.join(NL_CHAR));
   st.SaveToFile(args.listfile, 2);
   st.Close;
 };
