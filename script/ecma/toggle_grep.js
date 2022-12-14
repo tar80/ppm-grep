@@ -5,7 +5,7 @@
  * @arg 0 type. 0:toggle | 1:list
  */
 
-const type = PPx.Arguments.Length ? PPx.Arguments.Item(0) | 0 : 0;
+const select_type = PPx.Arguments.Length ? PPx.Arguments.Item(0) | 0 : 0;
 const cmd = PPx.Extract('%si"cmd"%si"output');
 const data = (() => {
   const commands = PPx.Extract('%*getcust(M_ppmGrep)');
@@ -40,16 +40,24 @@ const next = ((prop, len) => {
       return nextProp.replace(reg, '$1');
     },
     1: () => PPx.Extract('%M_ppmGrep') || PPx.Quit(-1)
-  }[type];
+  }[select_type];
 
   const p = param().split(',');
+
+  if (p[4] === undefined) {
+    p[4] = '';
+  } else if (p.length > 5) {
+    for (let i = 5; i < p.length; i++) {
+      p[4] = p[4] + ',' + p[i];
+    }
+  }
 
   return {
     cmd: p[0],
     output: p[1],
-    lock: p[2],
-    add: p[3],
-    list: p[4]
+    list: p[2],
+    lock: p[3],
+    add: p[4]
   };
 })(data.prop, data.len);
 
@@ -66,4 +74,4 @@ const cmdline = [
 ].join('%:');
 
 PPx.Execute(cmdline);
-PPx.Execute(`*setcaption [${next.output}] ${next.cmd} ${gopt} ※\\=\\\\`);
+PPx.Execute(`*setcaption RegExp [${next.output}] ${next.cmd} ${gopt}`);
