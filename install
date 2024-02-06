@@ -1,22 +1,23 @@
 ﻿PPM_PLUGIN_NAME=ppm-grep
 
 #Plugin version
-VERSION=1.21
+VERSION=1.22.0
 
 #Requires ppm version
-PPM_VERSION=0.5
+PPM_VERSION=0.94
 
 #Requires PPx version
-PPX_VERSION=185
+PPX_VERSION=195
 
-#Requires PPx script module version
-SCRIPT_VERSION=18
+#Requires PPx Script Module version
+SCRIPT_VERSION=21
+CV8_VERSION=3
 
 #Requires external executables. Separated dy commas
 EXECUTABLES=grep.exe
 
-#Requires PPx-modules. Separated dy commas
-MODULES=
+#Requires PPx Modules and Common Archivers Library. Separated dy commas
+MODULES=ppxwin
 
 #Comma separated dependent plugins. Just a note
 DEPENDENCIES=ppm-adjacentdir,ppm-comment
@@ -27,11 +28,11 @@ CODETYPE_PERMISSION=1
 #ScriptType permisson. 0:No restriction | 1:JS9(5.7) | 2:JS9(5.8) | 3:JS9(ES5) | 4:Chakra(ES6)
 SCRIPTTYPE_PERMISSION=0
 
-#To copy files in the sheet directory. true | false
-COPY_FLAG=true
+#To copy files in the Sheet directory. true | false
+COPY_FLAG=false
 
-#TO copy files in the userscript directory. true | false
-COPY_SCRIPT=true
+#To copy files in the Userscript directory. true | false
+COPY_SCRIPT=false
 
 #Copy by specifying the directory-name
-SPECIFIC_COPY_DIR=
+SPECIFIC_COPY_DIR=complist

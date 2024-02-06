@@ -6,39 +6,47 @@ Repository: https://github.com/tar80/ppm-grep
 ===============================================================================
 
 grepの結果を指定した方法で出力します。
-標準ではリストファイル・PPv・vimに出力できます。cache\script\grep_output.jsに
-メソッドを追加すれば、その他の方法で出力することも可能です。
+標準ではListFile・PPv・vimに出力できます。
+vimへの出力は他のエディタに変更できます。
 
 ===============================================================================
 動作環境
 
-	grep.exeが必要です。
-	他にripgrep.exe、jvgrep.exeなどのgrepコマンドも利用できます。
+	・PPx Window Moduleの導入
+	・grep.exeにパスが通っていること
+	  git for windowsに含まれるgrep.exeは使っていません。
+	  他にripgrep.exe、jvgrep.exeなどのgrepコマンドも利用できます。
 
 ===============================================================================
 構成ファイルの説明
 
-	\script\xxx\grep_run.js		grepコマンドを実行し、指定した方法で出力
-	\script\xxx\toggle_grep.js	使用するコマンドを順に変更する
-	\sheet\GITGREPOPTION.TXT	git-grepオプション補完リスト
-	\sheet\GREPOPTION.TXT		grepオプション補完リスト
-	\sheet\JVGREPOPTION.TXT		jvgrepオプション補完リスト
-	\sheet\RGOPTION.TXT		ripgrepオプション補完リスト
-	\userscript\grep_output.js	grep結果を出力する方法を定義できる
+	\dist\doGrep.js		grepコマンドを実行し、指定した方法で出力
+	\dist\switchGrep.js	使用するgrepコマンドの変更
+	\dist\openPPv.js	仮想エントリをPPvで開く
+	\complist\GITGREPOPTION.TXT	git-grepオプション補完リスト
+	\complist\GREPOPTION.TXT	grepオプション補完リスト
+	\complist\JVGREPOPTION.TXT	jvgrepオプション補完リスト
+	\complist\RGOPTION.TXT		ripgrepオプション補完リスト
 
 ===============================================================================
 テーブル情報
 
-	M_ppmGrep	使用するgrepコマンドと出力方法の情報
+M_ppmGrep	使用するgrepコマンドと出力方法の情報
 
-	K_ppmGrep	grep用一行編集で使用するキー
-
+K_ppmGrep	grepエントリリストで使用するキー
 
 ===============================================================================
 デフォルトキー設定
 
 PPc
 	CTRL+W	grep用一行編集
+	R	前後行・不要行のマスクをトグル（ListFile上)
+	Y	PPvの開始/終了をトグル（ListFile上)
+	ENTER	PPvが起動中なら、カーソル行をPPvに送る(ListFile上)
 
 一行編集
-	CTRL+W	使用するコマンドの変更
+	CTRL+W	grepコマンド・出力先の変更
+	CTRL+@	コミットの指定(git grep用)
+
+===============================================================================
+vim:tw=79:ts=8:sts=0:sw=4:norl:noet:fen:
