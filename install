@@ -1,7 +1,7 @@
 ﻿PPM_PLUGIN_NAME=ppm-grep
 
 #Plugin version
-VERSION=1.22.0
+VERSION=1.22.1
 
 #Requires ppm version
 PPM_VERSION=0.94
@@ -25,7 +25,7 @@ DEPENDENCIES=ppm-adjacentdir,ppm-comment
 #CodeType permisson. 0:No restriction | 1:Not use multiByte | 2:Not use unicode
 CODETYPE_PERMISSION=1
 
-#ScriptType permisson. 0:No restriction | 1:JS9(5.7) | 2:JS9(5.8) | 3:JS9(ES5) | 4:Chakra(ES6)
+#ScriptType permisson. 0:No restriction | 1:JS9(5.7) | 2:JS9(5.8) | 3:JS9(ES5) | 4:Chakra(ES6) | 5:CV8(ESNEXT)
 SCRIPTTYPE_PERMISSION=0
 
 #To copy files in the Sheet directory. true | false
