@@ -5,7 +5,7 @@ export const langDoGrep = {
     selectCommit: 'Select the tharget commit',
     warning: (cmd: string, path: string) => `Execute ${cmd} on ${path}`
   },
-  jp: {
+  ja: {
     invalidPath: '無効なパスです',
     noResult: '該当なし',
     selectCommit: '対象とするコミットを選択してください',

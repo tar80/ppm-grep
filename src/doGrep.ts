@@ -1,8 +1,8 @@
 /* @file Output the result of the grep command
- * @arg 0 {string} Specify the name of grep command
- * @arg 1 {string} Specify the name of output command
- * @arg 2 {string} Specify the PPc usage ID
- * @arg 3 {number} Specify the target path when unmarked. 0:cursor entry | 1:parent directory
+ * @arg 0 {string} - Specify the name of grep command
+ * @arg 1 {string} - Specify the name of output command
+ * @arg 2 {string} - Specify the PPc usage ID
+ * @arg 3 {number} - Specify the target path when unmarked. 0:cursor entry | 1:parent directory
  */
 
 import '@ppmdev/polyfills/json.ts';
@@ -14,6 +14,7 @@ import {writeLines} from '@ppmdev/modules/io.ts';
 import {ppm} from '@ppmdev/modules/ppm.ts';
 import {expandSource} from '@ppmdev/modules/source.ts';
 import {langDoGrep} from './mod/language.ts';
+import {safeArgs} from '@ppmdev/modules/argument.ts';
 import {GREP, doGrep as core} from './mod/core.ts';
 
 const {scriptName} = pathSelf();
@@ -22,9 +23,11 @@ const temp = tmp();
 const commitHashText = `${temp.dir}\\ppmgrepcommithash.txt`;
 
 const main = (): void => {
-  const args = adjustArgs();
+  const [cmd, output, id, targetSpec] = safeArgs('grep', 'lf', 'w', 0);
   const dirtype = PPx.DirectoryType;
   const {pwd, vtype, metaSource} = core.getParent(dirtype);
+  let grepCmd = cmd.toLowerCase();
+  let outputCmd = output.toLowerCase();
 
   if (isEmptyStr(pwd)) {
     ppm.echo(scriptName, lang.invalidPath);
@@ -34,35 +37,35 @@ const main = (): void => {
   const hasMark = PPx.EntryMarkCount !== 0;
 
   if (hasMark && vtype === 'aux') {
-    !ppm.question(scriptName, lang.warning(args.cmd, pwd)) && PPx.Quit(1);
+    !ppm.question(scriptName, lang.warning(grepCmd, pwd)) && PPx.Quit(1);
   }
 
   PPx.Execute(`*delete ${commitHashText}`);
   createButton();
-  const [error, word] = doSearch(args.cmd, args.output, metaSource.commit || '');
+  const [error, word] = doSearch(grepCmd, outputCmd, metaSource.commit || '');
 
   if (error) {
     PPx.Quit(1);
   }
 
-  const entry = hasMark ? '%#FCB' : args.targetSpec === '0' ? PPx.Extract('"%R"') : '';
-  args.cmd = PPx.getIValue(GREP.CMD).toLowerCase();
-  args.output = PPx.getIValue(GREP.OUTPUT).toLowerCase();
-  const [keyword, searchTerm] = core.correctWord(word, args.cmd);
-  const filepath = outputPath(keyword.replace(/["':/\\\|\s\.]/g, '_'), args.output);
-  const commit = args.cmd === 'gitgrep' ? PPx.getIValue(GREP.COMMIT_HASH) : '';
+  const entry = hasMark ? '%#FCB' : targetSpec === 0 ? PPx.Extract('"%R"') : '';
+  grepCmd = PPx.getIValue(GREP.cmd).toLowerCase();
+  outputCmd = PPx.getIValue(GREP.output).toLowerCase();
+  const [keyword, searchTerm] = core.correctWord(word, grepCmd);
+  const filepath = outputPath(keyword.replace(/["':/\\\|\s\.]/g, '_'), outputCmd);
+  const commit = grepCmd === 'gitgrep' ? PPx.getIValue(GREP.commitHash) : '';
 
   if (!isEmptyStr(commit)) {
     metaSource.commit = commit;
   }
 
-  if (args.output !== 'ppv') {
+  if (outputCmd !== 'ppv') {
     PPx.Execute(
-      `%Osq *run -noppb -hide -d:"${pwd}" %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${searchTerm}%)" ${commit} ${entry}>${filepath}`
+      `%Osq *run -noppb -hide -d:"${pwd}" %si"${GREP.cmd}" %si"${GREP.option}" "%(${searchTerm}%)" ${commit} ${entry}>${filepath}`
     );
     setVariableI('', '', '', '');
 
-    if (args.output === 'lf') {
+    if (outputCmd === 'lf') {
       const [ok, data] = core.createResult({dirtype, pwd, keyword, path: filepath, metaSource});
 
       if (!ok) {
@@ -74,55 +77,45 @@ const main = (): void => {
     }
   }
 
-  showResult[args.output as OutputCmd]({filepath, pwd, entry, id: args.id, keyword, searchTerm, commit});
+  showResult[outputCmd as OutputCmd]({filepath, pwd, entry, id, keyword, searchTerm, commit});
 };
 
-const adjustArgs = (args = PPx.Arguments) => {
-  const arr: string[] = ['grep', 'lf', 'w', '0'];
-
-  for (let i = 0, k = args.length; i < k; i++) {
-    arr[i] = args.Item(i);
-  }
-
-  return {cmd: arr[0].toLowerCase(), output: arr[1].toLowerCase(), id: arr[2], targetSpec: arr[3]};
-};
-
-const outputPath = (name: string, outputCmd: string) => {
-  let ext = outputCmd === 'edit' ? 'ppmgrep_e' : 'ppmgrep';
+const outputPath = (name: string, cmd: string) => {
+  let ext = cmd === 'edit' ? 'ppmgrep_e' : 'ppmgrep';
 
   return `${temp.dir}${name}.${ext}`;
 };
 
 const createButton = (): void => {
   PPx.Execute(
-    `*string i,${GREP.BUTTON}=%(*string i,${GREP.OPTION}=` +
-      `%*input("%si'${GREP.OPTION}'"` +
-      ` -title:"%si'${GREP.CMD}' option (fixed: %se'${GREP.OPT_F}')"` +
+    `*string i,${GREP.button}=%(*string i,${GREP.option}=` +
+      `%*input("%si'${GREP.option}'"` +
+      ` -title:"%si'${GREP.cmd}' option (fixed: %se'${GREP.optFixed}')"` +
       ` -mode:e` +
-      ` -select:%se'${GREP.OPT_FLENGTH}',%se'${GREP.OPT_ALENGTH}'` +
+      ` -select:%se'${GREP.optFlen}',%se'${GREP.optAlen}'` +
       ` -k *completelist -set -detail:"user 2user1"` +
-      ` -file:"%sgu'ppmcache'\\complist\\%se'${GREP.COMPLIST}'")` +
-      `%:*setcaption [%si'${GREP.OUTPUT}'] %si'${GREP.CMD}' %si'${GREP.OPTION}'` +
+      ` -file:"%sgu'ppmcache'\\complist\\%se'${GREP.complist}'")` +
+      `%:*setcaption [%si'${GREP.output}'] %si'${GREP.cmd}' %si'${GREP.option}'` +
       `%)`
   );
 };
 
 const setVariableI = (cmd: string, opts: string, output: string, commit: string): void => {
   PPx.Execute(
-    `*string i,${GREP.CMD}=${cmd}` +
-      `%:*string i,${GREP.OPTION}=${opts}` +
-      `%:*string i,${GREP.OUTPUT}=${output}` +
-      `%:*string i,${GREP.COMMIT_HASH}=${commit}`
+    `*string i,${GREP.cmd}=${cmd}` +
+      `%:*string i,${GREP.option}=${opts}` +
+      `%:*string i,${GREP.output}=${output}` +
+      `%:*string i,${GREP.commitHash}=${commit}`
   );
 };
 
 const setTempKeys = (): void => {
   const pwd = expandSource('ppm-grep')?.path;
-  const switchKey = ppm.user(GREP.SWITCH_KEY);
-  const commitKey = ppm.user(GREP.COMMIT_KEY);
+  const switchKey = ppm.user(GREP.switchKey);
+  const commitKey = ppm.user(GREP.commitKey);
   !isEmptyStr(switchKey) &&
     !!pwd &&
-    ppm.setkey(switchKey, `*script "${pwd}\\dist\\switchGrep.js",${ppm.user(GREP.SWITCH_TYPE)}`);
+    ppm.setkey(switchKey, `*script "${pwd}\\dist\\switchGrep.js",${ppm.user(GREP.switchType)}`);
   !isEmptyStr(commitKey) &&
     ppm.setkey(
       commitKey,
@@ -130,8 +123,8 @@ const setTempKeys = (): void => {
         `*string o,path=${commitHashText}`,
         `%(*ifmatch "o:e,a:d-","%so'path'"%:*goto start%)`,
         `%(%Obd git log --date=short --format="%OD%%h %;%%ad *%%s%%d%OD-" -50>"%so'path'"%&%)`,
-        `%(%mstart *string o,hash=%*input("%si'${GREP.COMMIT_HASH}'" -title:"${lang.selectCommit}" -mode:e -k *completelist -file:"%so'path'")%)`,
-        `%(*setcaption [%*regexp("%si'${GREP.OUTPUT}'","tr/a-z/A-Z")] %si'${GREP.CMD}' %si'${GREP.OPTION}'  (commit: %so'hash')%)`
+        `%(%mstart *string o,hash=%*input("%si'${GREP.commitHash}'" -title:"${lang.selectCommit}" -mode:e -k *completelist -file:"%so'path'")%)`,
+        `%(*setcaption [%*regexp("%si'${GREP.output}'","tr/a-z/A-Z")] %si'${GREP.cmd}' %si'${GREP.option}'  (commit: %so'hash')%)`
       ].join('%bn%bt'),
       true
     );
@@ -139,22 +132,22 @@ const setTempKeys = (): void => {
 
 const doSearch = (cmdGrep: string, cmdOutput: string, commit: string): Error_String => {
   type Parameter = {cmd: string; output: string; listname: string; fixed: string; added: string};
-  const param: Parameter = JSON.parse(ppm.getcust(`${GREP.MENU_ID}:${cmdGrep}${cmdOutput}`)[1]);
+  const param: Parameter = JSON.parse(ppm.getcust(`${GREP.muneId}:${cmdGrep}${cmdOutput}`)[1]);
   const sep = param.added.indexOf('-') === 0 ? ' ' : '';
   setVariableI(cmdGrep, `${param.fixed}${sep}${param.added}`, cmdOutput, commit);
   const setVariableE =
-    `*string e,${GREP.OPT_F}=${param.fixed}` +
-    `%:*string e,${GREP.OPT_A}=${param.added}` +
-    `%:*string e,${GREP.COMPLIST}=${param.listname}` +
-    `%:*string e,${GREP.OPT_FLENGTH}=${param.fixed.length}` +
-    `%:*string e,${GREP.OPT_ALENGTH}=%*js("PPx.result=PPx.Extract('%si\'${GREP.OPTION}\'').length;")`;
+    `*string e,${GREP.optFixed}=${param.fixed}` +
+    `%:*string e,${GREP.optAdded}=${param.added}` +
+    `%:*string e,${GREP.complist}=${param.listname}` +
+    `%:*string e,${GREP.optFlen}=${param.fixed.length}` +
+    `%:*string e,${GREP.optAlen}=%*js("PPx.result=PPx.Extract('%si\'${GREP.option}\'').length;")`;
   setTempKeys();
   const [exitcode, word] = ppm.getinput({
     title: `[${cmdOutput.toUpperCase()}] ${cmdGrep} ${param.fixed}${sep}${param.added}`,
     mode: 'Os',
     k: `%(*mapkey use,K_ppmTemp%:${setVariableE}%)`
   });
-  PPx.Execute(`*string i,${GREP.BUTTON}=`);
+  PPx.Execute(`*string i,${GREP.button}=`);
   ppm.deletekeys();
 
   if (exitcode > 0) {
@@ -184,7 +177,7 @@ const showResult = {
     PPx.Execute(
       `*linecust ${labelId}:CLOSEEVENT,` +
         `%%:*deletecust _User:${userID}` +
-        `%%:*mapkey delete,${GREP.KEY_ID}` +
+        `%%:*mapkey delete,${GREP.keyId}` +
         `%%:*linecust ${labelId}:LOADEVENT,` +
         `%%:*linecust ${labelId}:CLOSEEVENT,`
     );
@@ -195,7 +188,7 @@ const showResult = {
     );
     PPx.Execute('*setcust XV_tmod=1');
     PPx.Execute(
-      `*cd "${o.pwd}"%:%Obd %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${o.searchTerm}%)" ${o.commit} ${o.entry}` +
+      `*cd "${o.pwd}"%:%Obd %si"${GREP.cmd}" %si"${GREP.option}" "%(${o.searchTerm}%)" ${o.commit} ${o.entry}` +
         `|%0ppvw -bootid:${o.id} -esc -document -utf8 -k *string p,grep=1%%:*find "${o.keyword}"`
     );
     setVariableI('', '', '', '');

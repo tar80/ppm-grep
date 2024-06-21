@@ -1,28 +1,28 @@
 import {createLfItems, createLfMeta, getLfMeta} from '@ppmdev/parsers/listfile.ts';
 // import {} from '@ppmdev/modules/filesystem.ts';
 // import {} from '@ppmdev/modules/git.ts';
-import {isEmptyStr, isError} from '@ppmdev/modules/guard.ts';
+import {isEmptyStr} from '@ppmdev/modules/guard.ts';
 import {readLines} from '@ppmdev/modules/io.ts';
 import {rgxEscape} from '@ppmdev/modules/meta.ts';
 
 type VirtualType = 'aux' | 'lf';
 
 export const GREP = {
-  BUTTON: 'Edit_OptionCmd',
-  CMD: 'grepCmd',
-  OUTPUT: 'grepOutput',
-  OPTION: 'grepOption',
-  COMPLIST: 'grepComplist',
-  OPT_F: 'fixed',
-  OPT_A: 'added',
-  OPT_FLENGTH: 'flen',
-  OPT_ALENGTH: 'alen',
-  MENU_ID: 'M_ppmGrep',
-  KEY_ID: 'K_ppmGrep',
-  SWITCH_KEY: 'grep_switchkey',
-  SWITCH_TYPE: 'grep_switchtype',
-  COMMIT_KEY: 'grep_commitkey',
-  COMMIT_HASH: `commitHash`
+  button: 'Edit_OptionCmd',
+  cmd: 'grepCmd',
+  output: 'grepOutput',
+  option: 'grepOption',
+  complist: 'grepComplist',
+  optFixed: 'fixed',
+  optAdded: 'added',
+  optFlen: 'flen',
+  optAlen: 'alen',
+  muneId: 'M_ppmGrep',
+  keyId: 'K_ppmGrep',
+  switchKey: 'grep_switchkey',
+  switchType: 'grep_switchtype',
+  commitKey: 'grep_commitkey',
+  commitHash: `commitHash`
 };
 
 const getParent = (dirtype: number, pwd: string = PPx.Extract('%FD'), vwd: string = PPx.Extract('%FDV')) => {
@@ -33,7 +33,7 @@ const getParent = (dirtype: number, pwd: string = PPx.Extract('%FD'), vwd: strin
     vtype = 'lf';
     const [error, data] = readLines({path: vwd, enc: 'utf16le'});
 
-    if (!isError(error, data)) {
+    if (!error) {
       metaSource = getLfMeta(data.lines);
       pwd = metaSource.base;
     } else {
@@ -74,11 +74,11 @@ const createResult = ({
   const metaResult = createLfMeta({
     basepath: pwd,
     dirtype,
-    opts: [`;Search=${keyword}`, metaCmd, ';ppm=grep', `;mapkey=${GREP.KEY_ID}`, ';freq=every']
+    opts: [`;Search=${keyword}`, metaCmd, ';ppm=grep', `;mapkey=${GREP.keyId}`, ';freq=every']
   });
   const [error, data] = readLines({path, enc: 'utf8', linefeed: '\n'});
 
-  if (isError(error, data)) {
+  if (error) {
     return [false, []];
   }
 
