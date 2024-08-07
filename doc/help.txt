@@ -22,7 +22,8 @@ vimへの出力は他のエディタに変更できます。
 
 	\dist\doGrep.js		grepコマンドを実行し、指定した方法で出力
 	\dist\switchGrep.js	使用するgrepコマンドの変更
-	\dist\openPPv.js	仮想エントリをPPvで開く
+	\dist\openPPv.js	@deprecated
+	\dist\grepSyncview.stay.js	grep用の連動ビュー
 	\complist\GITGREPOPTION.TXT	git-grepオプション補完リスト
 	\complist\GREPOPTION.TXT	grepオプション補完リスト
 	\complist\JVGREPOPTION.TXT	jvgrepオプション補完リスト
@@ -41,7 +42,7 @@ K_ppmGrep	grepエントリリストで使用するキー
 PPc
 	CTRL+W	grep用一行編集
 	R	前後行・不要行のマスクをトグル（ListFile上)
-	Y	PPvの開始/終了をトグル（ListFile上)
+	Y	連動ビューをトグル（ListFile上)
 	ENTER	PPvが起動中なら、カーソル行をPPvに送る(ListFile上)
 
 一行編集
