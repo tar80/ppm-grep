@@ -9,7 +9,7 @@ import {isEmptyStr} from '@ppmdev/modules/guard.ts';
 import {waitMoment} from '@ppmdev/modules/util.ts';
 import debug from '@ppmdev/modules/debug.ts';
 
-const STAYMODE_ID = 80001;
+const STAYMODE_ID = 80100;
 const EVENT_LABEL = 'ppm_grepsyncview';
 
 type Cache = {ppvid: string; close: boolean; debug: boolean; lnum: string; tmod: string};

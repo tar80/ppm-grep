@@ -23,7 +23,7 @@ vimへの出力は他のエディタに変更できます。
 	\dist\doGrep.js		grepコマンドを実行し、指定した方法で出力
 	\dist\switchGrep.js	使用するgrepコマンドの変更
 	\dist\openPPv.js	@deprecated
-	\dist\grepSyncview.stay.js	grep用の連動ビュー
+	\dist\grepSyncview.stay.js	grep用の連動ビュー @deprecated
 	\complist\GITGREPOPTION.TXT	git-grepオプション補完リスト
 	\complist\GREPOPTION.TXT	grepオプション補完リスト
 	\complist\JVGREPOPTION.TXT	jvgrepオプション補完リスト

@@ -1,6 +1,6 @@
-import PPx from '@ppmdev/modules/ppx';
+import PPx from '@ppmdev/modules/ppx.ts';
 global.PPx = Object.create(PPx);
-import {doGrep as core} from '../core';
+import {doGrep as core} from '../core.ts';
 
 jest.mock('@ppmdev/modules/io');
 
@@ -23,7 +23,7 @@ describe('getParent()', function () {
   });
 });
 describe('correctWord()', function () {
-  let word;
+  let word: string;
   let cmd = 'grep';
   it('pass some words with grep', () => {
     word = 'general';
