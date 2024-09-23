@@ -61,9 +61,8 @@ const main = (): void => {
   }
 
   if (outputCmd !== 'ppv') {
-    PPx.Execute(
-      `%Osq *run -noppb -hide -d:"${pwd}" %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${searchTerm}%)" ${commit} ${entry}>${filepath}`
-    );
+    const runOptions = '-noppb -hide -breakjob -wait -d:"${pwd}"';
+    PPx.Execute(`%Oq *run ${runOptions} %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${searchTerm}%)" ${commit} ${entry}>${filepath}`);
     setVariableI('', '', '', '');
 
     if (outputCmd === 'lf') {

@@ -1,6 +1,6 @@
 {
   "name": "@ppmdev/ppm-grep",
-  "version": "1.24.2",
+  "version": "1.24.3",
   "description": "Output the results of the grep command in a specified method",
   "directories": {
     "doc": "doc"

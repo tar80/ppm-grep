@@ -1,7 +1,7 @@
 ﻿PPM_PLUGIN_NAME=ppm-grep
 
 #Plugin version
-VERSION=1.24.2
+VERSION=1.24.3
 
 #Requires ppm version
 PPM_VERSION=0.95
