@@ -61,7 +61,7 @@ const main = (): void => {
   }
 
   if (outputCmd !== 'ppv') {
-    const runOptions = '-noppb -hide -breakjob -wait -d:"${pwd}"';
+    const runOptions = `-noppb -hide -breakjob -wait -d:"${pwd}"`;
     PPx.Execute(`%Oq *run ${runOptions} %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${searchTerm}%)" ${commit} ${entry}>${filepath}`);
     setVariableI('', '', '', '');
 

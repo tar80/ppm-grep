@@ -1,3 +1,4 @@
+import '@ppmdev/polyfills/stringPadStart.ts';
 // import {} from '@ppmdev/modules/filesystem.ts';
 // import {} from '@ppmdev/modules/git.ts';
 import {isEmptyStr} from '@ppmdev/modules/guard.ts';
@@ -85,7 +86,7 @@ const createResult = ({
     const att = ~m4.indexOf(':') ? 0 : 3;
     const comment = m5.replace(/"/g, '""');
 
-    return `{"name":"${name}","sname":"${m3}","att":"${att}","comment":"${comment}"}`;
+    return `{"name":"${name}","sname":"${m3.padStart(5,' ')}","att":"${att}","comment":"${comment}"}`;
   };
   const lfLines = createLfItems({lines: data.lines, rgx, rep, virtualEntry: true});
 
