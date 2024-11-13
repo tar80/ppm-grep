@@ -178,7 +178,7 @@ const showResult = {
     PPx.Execute('*linecust tmod,KV_main:CLOSEEVENT,*setcust XV_tmod=%*getcust(XV_tmod)%%:*linecust tmod,KV_main:CLOSEEVENT,');
     PPx.Execute('*setcust XV_tmod=1');
     PPx.Execute(
-      `*cd "${o.pwd}"%:%Obd %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${o.searchTerm}%)" ${o.commit} ${o.entry}` +
+      `*launch -nostartmsg -noppb -hide -d:"${o.pwd}" %si"${GREP.CMD}" %si"${GREP.OPTION}" "%(${o.searchTerm}%)" ${o.commit} ${o.entry}` +
         `|%0ppvw -bootid:${o.id} -esc -document -utf8 -k *string p,grep=1%%:*find "${o.keyword}"`
     );
     setVariableI('', '', '', '');
